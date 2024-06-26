@@ -13,4 +13,6 @@ router
   )
   .get(serviceController.getAllServices);
 
+router.route('/:id').get(serviceController.getServiceById);
+
 export const serviceRouter = router;

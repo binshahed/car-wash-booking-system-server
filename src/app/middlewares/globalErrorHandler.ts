@@ -10,6 +10,7 @@ import handleValidationError from '../errors/validationError';
 import { TErrorSource } from '../interface/error.interface';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
+import NotFoundError from '../errors/NotFoundError';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   //setting default values
@@ -22,27 +23,36 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     },
   ];
 
+  // checking zod error
   if (err instanceof ZodError) {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSource;
-  } else if (err?.name === 'ValidationError') {
+  }
+  // checking validation error
+  else if (err?.name === 'ValidationError') {
     const simplifiedError = handleValidationError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSource;
-  } else if (err?.name === 'CastError') {
+  }
+  // checking cast error
+  else if (err?.name === 'CastError') {
     const simplifiedError = handleCastError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSource;
-  } else if (err?.code === 11000) {
+  }
+  // checking duplicate error
+  else if (err?.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSource;
-  } else if (err instanceof AppError) {
+  }
+  // custom error method
+  else if (err instanceof AppError) {
     statusCode = err?.statusCode;
     message = err.message;
     errorSources = [
@@ -51,7 +61,20 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         message: err?.message,
       },
     ];
-  } else if (err instanceof Error) {
+  }
+  // custom not found error method
+  else if (err instanceof NotFoundError) {
+    statusCode = err.statusCode || 404;
+    message = err.message || 'No Data Found';
+    return res.status(statusCode).json({
+      success: false,
+      statusCode,
+      message,
+      data: err.data || [],
+    });
+  }
+  // base error method
+  else if (err instanceof Error) {
     message = err.message;
     errorSources = [
       {
@@ -64,7 +87,6 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   //ultimate return
   return res.status(statusCode).json({
     success: false,
-    statusCode,
     message,
     errorSources,
     err,

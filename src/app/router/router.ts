@@ -24,6 +24,10 @@ export const routes = (app: Application) => {
 
   // not found route
   app.route('*').all((req: Request, res: Response) => {
-    res.send('Route Not Found!');
+    res.send({
+      success: false,
+      statusCode: 404,
+      message: 'Not Found',
+    });
   });
 };
