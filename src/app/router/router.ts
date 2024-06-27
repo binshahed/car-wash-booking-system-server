@@ -1,6 +1,7 @@
 import { Application, Request, Response } from 'express';
 import { userRoutes } from '../modules/user/user.routes';
 import { serviceRouter } from '../modules/service/service.routes';
+import { slotRouter } from '../modules/slot/slot.routes';
 
 const modulesRouters = [
   {
@@ -10,6 +11,10 @@ const modulesRouters = [
   {
     path: '/api/services',
     route: serviceRouter,
+  },
+  {
+    path: '/api/slots',
+    route: slotRouter,
   },
 ];
 
