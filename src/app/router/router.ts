@@ -1,12 +1,12 @@
 import { Application, Request, Response } from 'express';
-import { userRoutes } from '../modules/user/user.routes';
+import { authRoutes } from '../modules/auth/auth.routes';
 import { serviceRouter } from '../modules/service/service.routes';
 import { slotRouter } from '../modules/slot/slot.routes';
 
 const modulesRouters = [
   {
     path: '/api/auth',
-    route: userRoutes,
+    route: authRoutes,
   },
   {
     path: '/api/services',

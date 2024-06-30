@@ -2,68 +2,129 @@ import httpStatus from 'http-status';
 import { ServiceModel } from '../service/service.model';
 import { TSlot } from './slot.interface';
 import NotFoundError from '../../errors/NotFoundError';
+import AppError from '../../errors/AppError';
+import { SlotModel } from './slot.model';
 
 const createSlot = async (payLoad: TSlot) => {
   const { service: serviceId, startTime, endTime, date } = payLoad;
 
   // Check if service exists and is not deleted
   const service = await ServiceModel.findById(serviceId);
-  if (service?.isDeleted || !service) {
+
+  if (!service) {
     throw new NotFoundError(httpStatus.NOT_FOUND, 'Service not found!');
+  }
+
+  if (service?.isDeleted) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Service is deleted!');
+  }
+
+  // Check if slot for this day already exists
+  const findSlot = await SlotModel.findOne({ date: date });
+  if (findSlot?.date === date) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      'Slot has already been created for this day.',
+    );
   }
 
   // Calculate slot duration from service
   const slotDuration = service.duration;
 
-  // Calculate start and end times in minutes from midnight
-  const startHours = Number(startTime.split(':')[0]);
-  const startMinute = Number(startTime.split(':')[1]);
-  const endHour = Number(endTime.split(':')[0]);
-  const endMinute = Number(endTime.split(':')[1]);
+  // convert time string to minutes
+  const convertTimeToMinutes = (time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
 
-  const startTimeInMinutes = startHours * 60 + startMinute; //570
-  const endTimeInMinutes = endHour * 60 + endMinute; // 840
+  // convert minutes to time string
+  const convertMinutesToTimeString = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    const formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(remainingMinutes).padStart(2, '0');
+    return `${formattedHours}:${formattedMinutes}`;
+  };
 
-  // Array to store generated slots
-  const availableSlots = [];
+  // convert time string to minutes and check if it's a valid time range
+  const startTimeInMinutes = convertTimeToMinutes(startTime);
+  const endTimeInMinutes = convertTimeToMinutes(endTime);
 
-  // 570
-  // 570<840
-  //570 = 570+60
+  const totalTimeInMinutes =
+    endTimeInMinutes - startTimeInMinutes + slotDuration;
 
-  // Generate slots based on slot duration
-  for (
-    let currentStart = startTimeInMinutes; //570
-    currentStart < endTimeInMinutes;
-    currentStart = currentStart + slotDuration
-  ) {
-    //600
-    const currentEnd = Math.min(currentStart + slotDuration, endTimeInMinutes);
-
-    // Format start and end times into HH:mm format
-    const slotStartHour = Math.floor(currentStart / 60)
-      .toString()
-      .padStart(2, '0');
-    const slotStartMinute = (currentStart % 60).toString().padStart(2, '0');
-    const slotEndHour = Math.floor(currentEnd / 60)
-      .toString()
-      .padStart(2, '0');
-    const slotEndMinute = (currentEnd % 60).toString().padStart(2, '0');
-
-    // Create slot object and add to availableSlots array
-    availableSlots.push({
-      service: serviceId,
-      date,
-      startTime: `${slotStartHour}:${slotStartMinute}`,
-      endTime: `${slotEndHour}:${slotEndMinute}`,
-      isBooked: 'available',
-    });
+  if (endTimeInMinutes < startTimeInMinutes) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'End time cannot be earlier than start time!',
+    );
   }
 
-  // Log the generated slots (you can remove this in production)
-  console.log(availableSlots);
+  // count total slots
+
+  const totalSlot = Math.floor(totalTimeInMinutes / slotDuration);
+
+  // check given time range is valid
+  if (totalSlot < 1) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Selected service cannot cover multiple slots!',
+    );
+  }
+
+  // create slots
+  const slots = [];
+
+  for (let i = 0; i < totalSlot; i++) {
+    const slotStartTime = convertMinutesToTimeString(
+      startTimeInMinutes + i * slotDuration,
+    );
+
+    const endTimeSlot = convertMinutesToTimeString(
+      startTimeInMinutes + (i + 1) * slotDuration,
+    );
+
+    const newSlot = {
+      service: serviceId,
+      date,
+      startTime: slotStartTime,
+      endTime: endTimeSlot,
+      isBooked: 'available',
+    };
+
+    slots.push(newSlot);
+  }
+
+  const result = SlotModel.create(slots);
+
+  return result;
+};
+
+const getAvailableSlots = async (payload: {
+  date?: string;
+  serviceId?: string;
+}) => {
+  const query: { date?: string; service?: string } = {};
+
+  if (payload?.date) {
+    query.date = payload.date;
+  }
+  if (payload?.serviceId) {
+    query.service = payload.serviceId;
+  }
+
+  const result = await SlotModel.find({
+    ...query,
+    isBooked: 'available',
+  }).populate('service');
+
+  if (result.length === 0) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Slots not found!');
+  }
+  return result;
 };
 
 export const slotService = {
   createSlot,
+  getAvailableSlots,
 };

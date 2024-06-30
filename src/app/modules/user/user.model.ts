@@ -57,4 +57,8 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.statics.isUserExistsByEmail = async function (email: string) {
+  return await UserModel.findOne({ email }).select('+password');
+};
+
 export const UserModel = model<TUser, TUserModel>('User', userSchema);
