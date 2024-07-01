@@ -21,10 +21,13 @@ const createSlot = async (payLoad: TSlot) => {
 
   // Check if slot for this day already exists
   const findSlot = await SlotModel.findOne({ date: date });
-  if (findSlot?.date === date) {
+  if (
+    findSlot?.date === date &&
+    serviceId.toString() === service._id.toString()
+  ) {
     throw new AppError(
       httpStatus.CONFLICT,
-      'Slot has already been created for this day.',
+      `A slot for the service "${service.name}" on ${date} has already been created.`,
     );
   }
 

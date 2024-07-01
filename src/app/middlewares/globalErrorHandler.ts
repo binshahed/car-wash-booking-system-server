@@ -11,6 +11,7 @@ import { TErrorSource } from '../interface/error.interface';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
 import NotFoundError from '../errors/NotFoundError';
+import AuthorizationError from '../errors/AuthorizationError';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   //setting default values
@@ -71,6 +72,14 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
       statusCode,
       message,
       data: err.data || [],
+    });
+  } else if (err instanceof AuthorizationError) {
+    statusCode = err.statusCode || 401;
+    message = err.message || 'No Data Found';
+    return res.status(statusCode).json({
+      success: false,
+      statusCode,
+      message,
     });
   }
   // base error method

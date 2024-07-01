@@ -2,6 +2,10 @@ import { Application, Request, Response } from 'express';
 import { authRoutes } from '../modules/auth/auth.routes';
 import { serviceRouter } from '../modules/service/service.routes';
 import { slotRouter } from '../modules/slot/slot.routes';
+import {
+  bookingRouter,
+  myBookingRouter,
+} from '../modules/booking/booking.routes';
 
 const modulesRouters = [
   {
@@ -15,6 +19,14 @@ const modulesRouters = [
   {
     path: '/api/slots',
     route: slotRouter,
+  },
+  {
+    path: '/api/bookings',
+    route: bookingRouter,
+  },
+  {
+    path: '/api/my-bookings',
+    route: myBookingRouter,
   },
 ];
 
