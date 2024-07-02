@@ -1,4 +1,4 @@
-# [Car Wash Booking System](https://car-wash-booking-system-ten.vercel.app/){:target="_blank"}
+# [Car Wash Booking System](https://car-wash-booking-system-ten.vercel.app/)
 
 - [Project Overview](#project-overview)
 - [Features](#features)
