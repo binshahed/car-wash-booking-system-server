@@ -33,7 +33,7 @@ const modulesRouters = [
 export const routes = (app: Application) => {
   // root route
   app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!');
+    res.send('Car wash booking system');
   });
 
   // all routes
