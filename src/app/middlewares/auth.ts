@@ -44,7 +44,7 @@ const auth = (...allowedRoles: TUserRole[]) => {
 
     const user = await UserModel.findById(decodedToken?.data?._id);
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+      throw new AppError(httpStatus.NOT_FOUND, 'Invalid token');
     }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {

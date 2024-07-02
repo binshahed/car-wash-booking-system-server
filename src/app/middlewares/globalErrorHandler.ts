@@ -67,6 +67,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   else if (err instanceof NotFoundError) {
     statusCode = err.statusCode || 404;
     message = err.message || 'No Data Found';
+
     return res.status(statusCode).json({
       success: false,
       statusCode,

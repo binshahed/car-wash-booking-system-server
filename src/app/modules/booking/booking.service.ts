@@ -9,36 +9,38 @@ import mongoose from 'mongoose';
 import NotFoundError from '../../errors/NotFoundError';
 
 const createBooking = async (payloadUser: any, payload: TBookingInput) => {
+  const {
+    serviceId,
+    slotId,
+    manufacturingYear,
+    registrationPlate,
+    vehicleBrand,
+    vehicleModel,
+    vehicleType,
+  } = payload;
+
+  // find service
+  const service = await ServiceModel.findById(payload.serviceId);
+  if (!service) {
+    throw new NotFoundError(httpStatus.BAD_REQUEST, 'Service not found!');
+  }
+
+  //find slot
+  const slot = await SlotModel.findById(payload.slotId);
+  if (!slot) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Slot not found');
+  }
+  // checking if slot is already booked
+  if (slot.isBooked === 'booked') {
+    throw new AppError(httpStatus.CONFLICT, 'Slot is already booked');
+  }
+
+  // transition and role back
   // start session
   const session = await mongoose.startSession();
   await session.startTransaction();
 
   try {
-    const {
-      serviceId,
-      slotId,
-      manufacturingYear,
-      registrationPlate,
-      vehicleBrand,
-      vehicleModel,
-      vehicleType,
-    } = payload;
-
-    // find service
-    const service = await ServiceModel.findById(payload.serviceId);
-    if (!service || service.isDeleted) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Service not found');
-    }
-    //find slot
-    const slot = await SlotModel.findById(payload.slotId);
-    if (!slot) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Slot not found');
-    }
-    // checking if slot is already booked
-    if (slot.isBooked === 'booked') {
-      throw new AppError(httpStatus.CONFLICT, 'Slot is already booked');
-    }
-
     // create new booking object
     const newBooking = {
       customer: payloadUser._id,
@@ -94,6 +96,10 @@ const getAllBookings = async () => {
     { path: 'slot', select: '-createdAt -updatedAt -__v' },
   ]);
 
+  if (result.length === 0) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Bookings not found');
+  }
+
   return result;
 };
 
@@ -104,7 +110,7 @@ const getMyBookings = async (customerId: string) => {
     { path: 'slot', select: '-createdAt -updatedAt -__v' },
   ]);
 
-  if (result.length < 0) {
+  if (result.length === 0) {
     throw new NotFoundError(httpStatus.NOT_FOUND, 'No Bookings found');
   }
 
