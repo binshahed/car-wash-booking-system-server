@@ -6,7 +6,16 @@ const app = express();
 
 // middlewares
 app.use(express.json());
-app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
+  next();
+});
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }),
+);
 
 // routes
 routes(app);
