@@ -1,6 +1,5 @@
-#  [Car Wash Booking System](https://car-wash-booking-system-ten.vercel.app/)
+# [Car Wash Booking System](https://car-wash-booking-system-ten.vercel.app/)
 
-## Table of Contents
 - [Project Overview](#project-overview)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
@@ -31,14 +30,21 @@ Follow these steps to set up and run the project locally:
 
 ### Installation and run the application
 
-1. Clone the repository:
+1. Clone The Repository:
    ```sh
    git https://github.com/binshahed/car-wash-booking-system-server.git
-   cd car-wash-booking-system-server
+   ```
+2. Change Directory
+   ```sh
+   cd car-wash-booking-system-server 
+   ```
+3. Install Dependency
+   ```sh
    npm install
+   ```
+4. Run Project
+   ```sh
    npm run start:dev
-
-
 ## API Endpoints
 
 ### User Routes
@@ -79,9 +85,9 @@ Follow these steps to set up and run the project locally:
    - **Endpoint:** `POST /api/services/slots`
    - **Description:** Add new booking slots for a service.
 
-9. **Book a Slot**
-   - **Endpoint:** `GET /api/slots/availability`
-   - **Description:** Query params `date` and `serviceId` Get available slot.
+9. **Check Slot Availabilityt**
+   - **Endpoint: GET /api/slots/availability
+   - **Description: Query available slots with date and serviceId parameters.
 
 ### Booking Routes
 
