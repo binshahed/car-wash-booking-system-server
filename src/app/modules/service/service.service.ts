@@ -3,6 +3,7 @@ import AppError from '../../errors/AppError';
 import { TService } from './service.interface';
 import { ServiceModel } from './service.model';
 import NotFoundError from '../../errors/NotFoundError';
+import { QueryBuilder } from '../../builder/QueryBuilder';
 
 const createService = async (payLoad: TService) => {
   const service = await ServiceModel.create(payLoad);
@@ -12,17 +13,35 @@ const createService = async (payLoad: TService) => {
   return service;
 };
 
-const getAllServices = async () => {
-  const services = await ServiceModel.find({ isDeleted: { $ne: true } });
-  // checking is service is available
-  if (services.length === 0) {
-    throw new NotFoundError(
-      httpStatus.NOT_FOUND,
-      'Services not found!',
-      services,
-    );
-  }
-  return services;
+const getAllServices = async (query: Record<string, unknown>) => {
+  const services = new QueryBuilder(
+    ServiceModel.find({ isDeleted: { $ne: true } }),
+    query,
+  )
+    .search(['name', 'description'])
+    .filter([
+      'searchTerm',
+      'sort',
+      'order',
+      'limit',
+      'page',
+      'fields',
+      'priceRange',
+    ])
+    .sort()
+    .paginate()
+    .fields();
+  const serviceResult = await services.modelQuery.exec();
+
+  // if (serviceResult?.length === 0) {
+  //   throw new NotFoundError(
+  //     httpStatus.NOT_FOUND,
+  //     'Services not found!',
+  //     serviceResult,
+  //   );
+  // }
+
+  return serviceResult;
 };
 
 const getServiceById = async (id: string) => {

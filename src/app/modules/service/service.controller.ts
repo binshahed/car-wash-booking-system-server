@@ -17,7 +17,7 @@ const createService = catchAsync(async (req, res) => {
 
 // get all services
 const getAllServices = catchAsync(async (req, res) => {
-  const result = await serviceService.getAllServices();
+  const result = await serviceService.getAllServices(req.query);
 
   sendResponse(res, {
     success: true,
