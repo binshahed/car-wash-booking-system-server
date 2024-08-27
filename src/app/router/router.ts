@@ -6,6 +6,7 @@ import {
   bookingRouter,
   myBookingRouter,
 } from '../modules/booking/booking.routes';
+import { reviewRouter } from '../modules/review/review.routes';
 
 const modulesRouters = [
   {
@@ -23,6 +24,10 @@ const modulesRouters = [
   {
     path: '/api/bookings',
     route: bookingRouter,
+  },
+  {
+    path: '/api/review',
+    route: reviewRouter,
   },
   {
     path: '/api/my-bookings',
