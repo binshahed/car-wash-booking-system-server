@@ -26,7 +26,7 @@ const modulesRouters = [
     route: bookingRouter,
   },
   {
-    path: '/api/review',
+    path: '/api/reviews',
     route: reviewRouter,
   },
   {
