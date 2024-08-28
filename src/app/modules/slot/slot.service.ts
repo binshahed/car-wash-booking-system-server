@@ -125,7 +125,7 @@ const getAvailableSlots = async (payload: {
 };
 
 const getSlotById = async (payload: string) => {
-  const slot = SlotModel.findById(payload);
+  const slot = SlotModel.findById(payload).populate('service');
   if (!slot) {
     throw new NotFoundError(httpStatus.NOT_FOUND, 'Slot not found!');
   }

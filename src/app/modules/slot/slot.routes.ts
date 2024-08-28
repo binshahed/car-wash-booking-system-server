@@ -5,6 +5,6 @@ const router = Router();
 
 router.route('/availability').get(slotController.getAvailableSlots);
 
-router.route('/availability/:id').get(slotController.getSlotById);
+router.route('/:id').get(slotController.getSlotById);
 
 export const slotRouter = router;
