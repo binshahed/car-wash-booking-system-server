@@ -118,16 +118,23 @@ const getAvailableSlots = async (payload: {
 
   const result = await SlotModel.find({
     ...query,
-    isBooked: 'available',
+    // isBooked: 'available',
   }).populate('service');
 
-  if (result.length === 0) {
-    throw new NotFoundError(httpStatus.NOT_FOUND, 'Slots not found!');
-  }
   return result;
+};
+
+const getSlotById = async (payload: string) => {
+  const slot = SlotModel.findById(payload);
+  if (!slot) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Slot not found!');
+  }
+
+  return slot;
 };
 
 export const slotService = {
   createSlot,
   getAvailableSlots,
+  getSlotById,
 };

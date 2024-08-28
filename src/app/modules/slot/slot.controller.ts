@@ -27,4 +27,15 @@ const getAvailableSlots = catchAsync(async (req, res) => {
   });
 });
 
-export const slotController = { createSlot, getAvailableSlots };
+const getSlotById = catchAsync(async (req, res) => {
+  const result = await slotService.getSlotById(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Slot retrieved successfully',
+    data: result,
+  });
+});
+
+export const slotController = { createSlot, getAvailableSlots, getSlotById };
