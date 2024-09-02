@@ -1,6 +1,8 @@
 import { FilterQuery, Query } from 'mongoose';
+import { TService } from '../modules/service/service.interface';
 
 export class QueryBuilder<T> {
+  [x: string]: FilterQuery<TService> | undefined;
   public modelQuery: Query<T[], T>;
   public query: Record<string, unknown>;
 

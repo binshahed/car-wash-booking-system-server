@@ -18,6 +18,10 @@ router
   .get(serviceController.getAllServices);
 
 router
+  .route('/admin')
+  .get(auth('admin'), serviceController.getAllServicesAdmin);
+
+router
   .route('/:id')
   .get(serviceController.getServiceById)
   .patch(

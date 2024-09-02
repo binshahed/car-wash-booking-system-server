@@ -90,11 +90,13 @@ const createBooking = async (payloadUser: any, payload: TBookingInput) => {
 };
 
 const getAllBookings = async () => {
-  const result = await BookingModel.find().populate([
-    { path: 'customer', select: '-role -createdAt -updatedAt' },
-    { path: 'service', select: '-createdAt -updatedAt -__v' },
-    { path: 'slot', select: '-createdAt -updatedAt -__v' },
-  ]);
+  const result = await BookingModel.find()
+    .sort({ createdAt: 'desc' })
+    .populate([
+      { path: 'customer', select: '-role -createdAt -updatedAt' },
+      { path: 'service', select: '-createdAt -updatedAt -__v' },
+      { path: 'slot', select: '-createdAt -updatedAt -__v' },
+    ]);
 
   if (result.length === 0) {
     throw new NotFoundError(httpStatus.NOT_FOUND, 'Bookings not found');

@@ -26,6 +26,17 @@ const getAllServices = catchAsync(async (req, res) => {
     data: result,
   });
 });
+// get all services
+const getAllServicesAdmin = catchAsync(async (req, res) => {
+  const result = await serviceService.getAllServicesAdmin(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Services retrieved successfully',
+    data: result,
+  });
+});
 const getServiceById = catchAsync(async (req, res) => {
   const result = await serviceService.getServiceById(req.params.id);
 
@@ -68,4 +79,5 @@ export const serviceController = {
   getServiceById,
   updateServiceById,
   deleteServiceById,
+  getAllServicesAdmin,
 };
