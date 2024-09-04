@@ -7,6 +7,7 @@ import {
   myBookingRouter,
 } from '../modules/booking/booking.routes';
 import { reviewRouter } from '../modules/review/review.routes';
+import { userRouter } from '../modules/user/user.routes';
 
 const modulesRouters = [
   {
@@ -32,6 +33,10 @@ const modulesRouters = [
   {
     path: '/api/my-bookings',
     route: myBookingRouter,
+  },
+  {
+    path: '/api/users',
+    route: userRouter,
   },
 ];
 

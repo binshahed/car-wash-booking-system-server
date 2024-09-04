@@ -1,10 +1,10 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../../utils/catchAsync';
 import sendResponse from '../../../utils/sendResponse';
-import { userService } from './auth.service';
+import { authService } from './auth.service';
 
 const signupUser = catchAsync(async (req, res) => {
-  const result = await userService.signUpUser(req.body);
+  const result = await authService.signUpUser(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -15,7 +15,7 @@ const signupUser = catchAsync(async (req, res) => {
 });
 
 const loginUser = catchAsync(async (req, res) => {
-  const { data, token } = await userService.loginUser(req.body);
+  const { data, token } = await authService.loginUser(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -26,4 +26,4 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
-export const userController = { signupUser, loginUser };
+export const authController = { signupUser, loginUser };

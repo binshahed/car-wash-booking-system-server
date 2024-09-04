@@ -43,7 +43,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
   };
 };
 
-export const userService = {
+export const authService = {
   signUpUser,
   loginUser,
 };
