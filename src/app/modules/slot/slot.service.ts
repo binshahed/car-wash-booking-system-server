@@ -133,8 +133,29 @@ const getSlotById = async (payload: string) => {
   return slot;
 };
 
+const updateSlotStatus = async (id: string, payload: { isBooked: string }) => {
+  const slot = await SlotModel.findById(id);
+  if (!slot) {
+    throw new NotFoundError(httpStatus.NOT_FOUND, 'Slot not found!');
+  }
+
+  if (slot.isBooked === 'booked') {
+    throw new AppError(httpStatus.CONFLICT, 'Slot Already booked');
+  }
+
+  const result = SlotModel.findByIdAndUpdate(
+    id,
+    { isBooked: payload.isBooked },
+    {
+      new: true,
+    },
+  );
+  return result;
+};
+
 export const slotService = {
   createSlot,
   getAvailableSlots,
   getSlotById,
+  updateSlotStatus,
 };
