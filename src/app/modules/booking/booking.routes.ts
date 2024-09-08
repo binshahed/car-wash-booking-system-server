@@ -17,4 +17,6 @@ bookingRouter
 
 export const myBookingRouter = Router();
 
-myBookingRouter.route('/').get(auth('user'), bookingController.myBooking);
+myBookingRouter
+  .route('/')
+  .get(auth('user', 'admin'), bookingController.myBooking);
