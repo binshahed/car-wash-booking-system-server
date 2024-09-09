@@ -33,9 +33,9 @@ export const paymentResponse = async (
     cus_add2: 'Dhaka',
     cus_city: 'Dhaka',
     cus_country: 'Bangladesh',
-    success_url: `https://car-wash-booking-system-client-opal.vercel.app/api/payment/success?secret=${token}`,
-    fail_url: `https://car-wash-booking-system-client-opal.vercel.app//api/payment/fail?secret=${token}`,
-    cancel_url: `https://car-wash-booking-system-client-opal.vercel.app//api/payment/cancel?secret=${token}`,
+    success_url: `https://car-wash-booking-system-ten.vercel.app/api/payment/success?secret=${token}`,
+    fail_url: `https://car-wash-booking-system-ten.vercel.app/api/payment/fail?secret=${token}`,
+    cancel_url: `https://car-wash-booking-system-ten.vercel.app/api/payment/cancel?secret=${token}`,
     type: 'json',
   };
 

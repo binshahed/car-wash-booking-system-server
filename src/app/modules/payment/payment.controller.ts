@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import catchAsync from '../../../utils/catchAsync';
 import sendResponse from '../../../utils/sendResponse';
@@ -41,9 +42,9 @@ const successPayment = catchAsync(async (req, res) => {
   }
 
   // Using path.resolve to ensure the path is absolute
-  const filePath = path.resolve(__dirname, '../../templates/success.html');
+  // const filePath = path.resolve(__dirname, '../../templates/success.html');
 
-  res.sendFile(filePath, (err) => {
+  res.sendFile(result?.file as any, (err) => {
     if (err) {
       res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
