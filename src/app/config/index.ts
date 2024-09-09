@@ -9,4 +9,5 @@ export default {
   databaseUrl: process.env.DATABASE_URL,
   saltRound: process.env.SALT_ROUND,
   jwtSecret: process.env.JWT_SECRET_KEY,
+  paymentSignatureKey: process.env.PAYMENT_SIGNATURE_KEY,
 };

@@ -1,0 +1,54 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from 'axios';
+import { generateRandom20DigitString } from '../../../utils/generateRandomId';
+import AppError from '../../errors/AppError';
+import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
+
+export const paymentResponse = async (
+  payloadUser: any,
+  booking: any,
+  amount: number,
+) => {
+  const tranId = generateRandom20DigitString();
+
+  const token = jwt.sign(
+    { transactionId: tranId, booking, amount },
+    config.paymentSignatureKey as string,
+    { expiresIn: '1h' },
+  );
+
+  const formData = {
+    cus_name: payloadUser?.name,
+    cus_email: payloadUser?.email,
+    cus_phone: payloadUser?.phone,
+    amount: amount,
+    tran_id: tranId,
+    signature_key: 'dbb74894e82415a2f7ff0ec3a97e4183',
+    store_id: 'aamarpaytest', // Ensure this is correct
+    currency: 'BDT',
+    desc: 'N/A',
+    cus_add1: '53, Gausul Azam Road, Sector-14, Dhaka, Bangladesh',
+    cus_add2: 'Dhaka',
+    cus_city: 'Dhaka',
+    cus_country: 'Bangladesh',
+    success_url: `https://car-wash-booking-system-client-opal.vercel.app/api/payment/success?secret=${token}`,
+    fail_url: `https://car-wash-booking-system-client-opal.vercel.app//api/payment/fail?secret=${token}`,
+    cancel_url: `https://car-wash-booking-system-client-opal.vercel.app//api/payment/cancel?secret=${token}`,
+    type: 'json',
+  };
+
+  // Send payment request to Aamarpay
+  const { data: paymentResponse } = await axios.post(
+    'https://sandbox.aamarpay.com/jsonpost.php',
+    JSON.stringify(formData), // Use URLSearchParams to format the data correctly
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+
+  if (!paymentResponse?.result) {
+    throw new AppError(httpStatus.PAYMENT_REQUIRED, 'Payment failed');
+  }
+
+  return paymentResponse;
+};

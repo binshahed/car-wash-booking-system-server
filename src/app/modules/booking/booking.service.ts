@@ -7,109 +7,82 @@ import { ServiceModel } from '../service/service.model';
 import { SlotModel } from '../slot/slot.model';
 import mongoose from 'mongoose';
 import NotFoundError from '../../errors/NotFoundError';
+import { paymentResponse } from './booking.utils';
 
 const createBooking = async (payloadUser: any, payload: TBookingInput) => {
-  // const {
-  //   serviceId,
-  //   slotId,
-  //   manufacturingYear,
-  //   registrationPlate,
-  //   vehicleBrand,
-  //   vehicleModel,
-  //   vehicleType,
-  // } = payload;
-
-  // find service
+  // Find service
   const service = await ServiceModel.findById(payload.serviceId);
   if (!service) {
     throw new NotFoundError(httpStatus.BAD_REQUEST, 'Service not found!');
   }
 
-  //find slot
+  // Find slot
   const slot = await SlotModel.findById(payload.slotId);
   if (!slot) {
     throw new NotFoundError(httpStatus.NOT_FOUND, 'Slot not found');
   }
-  // checking if slot is already booked
+
+  // Check if slot is already booked
   if (slot.isBooked === 'booked') {
     throw new AppError(httpStatus.CONFLICT, 'Slot is already booked');
   }
 
-  // transition and role back
-  // start session
+  // Start a session for transaction
   const session = await mongoose.startSession();
-  await session.startTransaction();
+  session.startTransaction();
 
-  console.log(payload);
-  console.log('service', service, 'slot', slot);
+  try {
+    // Define booking data
+    const newBooking = {
+      customer: payloadUser._id,
+      service: payload.serviceId,
+      slot: payload.slotId,
+      manufacturingYear: payload.manufacturingYear,
+      registrationPlate: payload.registrationPlate,
+      vehicleBrand: payload.vehicleBrand,
+      vehicleModel: payload.vehicleModel,
+      vehicleType: payload.vehicleType,
+    };
 
-  const formData = {
-    cus_name: payloadUser?.name,
-    cus_email: payloadUser?.email,
-    cus_phone: payloadUser?.phone,
-    amount: service?.price,
-    tran_id: slot?._id,
-    signature_key: '28c78bb1f45112f5d40b956fe104645100',
-    store_id: 'aamarpay',
-    currency: 'BDT',
-    desc: 'Merchant Registration Payment',
-    cus_add1: '53, Gausul Azam Road, Sector-14, Dhaka, Bangladesh',
-    cus_add2: 'Dhaka',
-    cus_city: 'Dhaka',
-    cus_country: 'Bangladesh',
-    // success_url: `${baseUrl}callback`,
-    // fail_url: `${baseUrl}callback`,
-    // cancel_url: `${baseUrl}callback`,
-    type: 'json',
-  };
+    // Update slot to booked
+    await SlotModel.findOneAndUpdate(
+      { _id: payload.slotId },
+      { $set: { isBooked: 'booked' } },
+      { session, new: true },
+    );
 
-  // try {
-  //   // create new booking object
-  //   const newBooking = {
-  //     customer: payloadUser._id,
-  //     service: serviceId,
-  //     slot: slotId,
-  //     manufacturingYear,
-  //     registrationPlate,
-  //     vehicleBrand,
-  //     vehicleModel,
-  //     vehicleType,
-  //   };
+    // Create new booking
+    const booking = await BookingModel.create([newBooking], { session });
 
-  //   // update slot available to booked
-  //   await SlotModel.findOneAndUpdate(
-  //     { _id: slotId },
-  //     { $set: { isBooked: 'booked' } },
-  //     { session, new: true },
-  //   );
-  //   // create new booking
-  //   const booking = await BookingModel.create([newBooking], { session });
+    if (!booking) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create booking');
+    }
 
-  //   // if booking not success
+    // Populate booking details
+    await booking[0].populate([
+      { path: 'customer', select: '-role -createdAt -updatedAt' },
+      { path: 'service', select: '-createdAt -updatedAt -__v' },
+      { path: 'slot', select: '-createdAt -updatedAt -__v' },
+    ]);
 
-  //   if (!booking) {
-  //     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create booking');
-  //   }
+    const payment = await paymentResponse(
+      payloadUser,
+      booking[0]._id,
+      service?.price,
+    );
 
-  //   // populate customer, service and slot details
-  //   const result = await booking[0].populate([
-  //     { path: 'customer', select: '-role -createdAt -updatedAt' },
-  //     { path: 'service', select: '-createdAt -updatedAt -__v' },
-  //     { path: 'slot', select: '-createdAt -updatedAt -__v' },
-  //   ]);
+    // Check if payment was successful based on response
 
-  //   // end session
-  //   await session.commitTransaction();
-  //   await session.endSession();
-
-  //   // return result with populated customer, service and slot details
-  //   return result;
-  // } catch (err: any) {
-  //   // rollback session in case of error
-  //   await session.abortTransaction();
-  //   await session.endSession();
-  //   throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
-  // }
+    await session.commitTransaction();
+    return payment;
+  } catch (err: any) {
+    // Rollback the transaction in case of an error
+    await session.abortTransaction();
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+  } finally {
+    // End the session
+    await session.endSession();
+  }
 };
 
 const getAllBookings = async () => {

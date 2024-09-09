@@ -8,6 +8,7 @@ import {
 } from '../modules/booking/booking.routes';
 import { reviewRouter } from '../modules/review/review.routes';
 import { userRouter } from '../modules/user/user.routes';
+import { paymentRouter } from '../modules/payment/payment.routes';
 
 const modulesRouters = [
   {
@@ -38,6 +39,10 @@ const modulesRouters = [
     path: '/api/users',
     route: userRouter,
   },
+  {
+    path: '/api/payment',
+    route: paymentRouter,
+  },
 ];
 
 export const routes = (app: Application) => {
@@ -54,7 +59,7 @@ export const routes = (app: Application) => {
     res.send({
       success: false,
       statusCode: 404,
-      message: 'Not Found',
+      message: 'Route Not Found',
     });
   });
 };
