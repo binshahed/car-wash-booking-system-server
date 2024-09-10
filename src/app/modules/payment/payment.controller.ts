@@ -9,6 +9,7 @@ import config from '../../config';
 import { paymentService } from './payment.service';
 import path from 'path';
 
+
 // create a new Review
 const successPayment = catchAsync(async (req, res) => {
   const paymentInfoToken = req.query.secret as string;
@@ -65,7 +66,16 @@ const failedPayment = catchAsync(async (req, res) => {
   });
 });
 
+const testPayment = catchAsync(async (req, res) => {
+  // Construct the path to the HTML file
+  const filePath = path.join(__dirname, './', 'success.html');
+
+  // Send the HTML file as the response
+  res.sendFile(filePath);
+});
+
 export const paymentController = {
+  testPayment,
   successPayment,
   failedPayment,
 };

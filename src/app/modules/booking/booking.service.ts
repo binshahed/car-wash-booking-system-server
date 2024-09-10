@@ -7,7 +7,7 @@ import { ServiceModel } from '../service/service.model';
 import { SlotModel } from '../slot/slot.model';
 import mongoose from 'mongoose';
 import NotFoundError from '../../errors/NotFoundError';
-import { paymentResponse } from './booking.utils';
+import { paymentResponse } from '../payment/payment.utils';
 
 const createBooking = async (payloadUser: any, payload: TBookingInput) => {
   // Find service
