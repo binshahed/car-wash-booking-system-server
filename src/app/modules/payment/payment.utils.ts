@@ -6,6 +6,8 @@ import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 
+const liveUrl: string = 'http://localhost:4000';
+
 export const paymentResponse = async (
   payloadUser: any,
   booking: any,
@@ -33,10 +35,9 @@ export const paymentResponse = async (
     cus_add2: 'Dhaka',
     cus_city: 'Dhaka',
     cus_country: 'Bangladesh',
-    success_url: `http://localhost:4000/api/payment/success?secret=${token}`,
-    // success_url: `http://localhost:4000/api/payment/success`,
-    fail_url: `https://car-wash-booking-system-ten.vercel.app/api/payment/fail?secret=${token}`,
-    cancel_url: `https://car-wash-booking-system-ten.vercel.app/api/payment/cancel?secret=${token}`,
+    success_url: `${liveUrl}/api/payment/success?secret=${token}`,
+    fail_url: `${liveUrl}/api/payment/failed?secret=${token}`,
+    cancel_url: `${liveUrl}/api/payment/canceled?secret=${token}`,
     type: 'json',
   };
 

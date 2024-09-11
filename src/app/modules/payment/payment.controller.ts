@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import catchAsync from '../../../utils/catchAsync';
-import sendResponse from '../../../utils/sendResponse';
 
 import AppError from '../../errors/AppError';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 import { paymentService } from './payment.service';
 import path from 'path';
-
 
 // create a new Review
 const successPayment = catchAsync(async (req, res) => {
@@ -42,40 +40,82 @@ const successPayment = catchAsync(async (req, res) => {
     );
   }
 
-  // Using path.resolve to ensure the path is absolute
-  // const filePath = path.resolve(__dirname, '../../templates/success.html');
+  const filePath = path.resolve(__dirname, '../../templates/success.html');
 
-  res.sendFile(result?.file as any, (err) => {
-    if (err) {
-      res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send('Could not load the success page.');
-    }
-  });
+  if (!result.exists as boolean) {
+    res.sendFile(filePath);
+  }
 });
 
-// get all Review
 const failedPayment = catchAsync(async (req, res) => {
-  const result = await paymentService.getAllReviews();
+  const paymentInfoToken = req.query.secret as string;
+  const token = jwt.verify(
+    paymentInfoToken,
+    config.paymentSignatureKey as string,
+  );
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'Payment failed',
-    data: result,
+  if (!token) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid payment info token');
+  }
+
+  const { transactionId, booking, amount } = token as {
+    transactionId: string;
+    booking: string;
+    amount: number;
+  };
+
+  const result = await paymentService.failedPayment({
+    transactionId,
+    booking,
+    amount,
   });
+
+  const filePath = path.resolve(__dirname, '../../templates/failed.html');
+
+  if (result) {
+    res.sendFile(filePath);
+  } else {
+    return res.redirect(
+      'https://car-wash-booking-system-client-opal.vercel.app/',
+    );
+  }
 });
+const canceledPayment = catchAsync(async (req, res) => {
+  const paymentInfoToken = req.query.secret as string;
+  const token = jwt.verify(
+    paymentInfoToken,
+    config.paymentSignatureKey as string,
+  );
 
-const testPayment = catchAsync(async (req, res) => {
-  // Construct the path to the HTML file
-  const filePath = path.join(__dirname, './', 'success.html');
+  if (!token) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid payment info token');
+  }
 
-  // Send the HTML file as the response
-  res.sendFile(filePath);
+  const { transactionId, booking, amount } = token as {
+    transactionId: string;
+    booking: string;
+    amount: number;
+  };
+
+  const result = await paymentService.failedPayment({
+    transactionId,
+    booking,
+    amount,
+  });
+
+  const filePath = path.resolve(__dirname, '../../templates/canceled.html');
+
+  if (result) {
+    res.sendFile(filePath);
+  } else {
+    return res.redirect(
+      'https://car-wash-booking-system-client-opal.vercel.app/',
+    );
+  }
 });
 
 export const paymentController = {
-  testPayment,
   successPayment,
   failedPayment,
+  canceledPayment,
 };

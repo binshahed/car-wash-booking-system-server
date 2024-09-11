@@ -3,8 +3,8 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 
 import PaymentModel from './payment.model';
-import { join } from 'path';
-import { readFileSync } from 'fs';
+import { BookingModel } from '../booking/booking.model';
+import { SlotModel } from '../slot/slot.model';
 
 const successPayment = async (payLoad: any) => {
   const isPaymentExist = await PaymentModel.findOne({
@@ -20,26 +20,26 @@ const successPayment = async (payLoad: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Payment is not created');
   }
 
-  const filePath = join(__dirname, '../../templates/success.html');
-  let file = readFileSync(filePath, 'utf-8');
-  file = file.replace(
-    '{{link}}',
-    'https://car-wash-booking-system-client-opal.vercel.app/',
-  );
-
-  return { exists: false, file };
+  return { exists: false };
 };
 
-const getAllReviews = async () => {
-  const review = PaymentModel.find().populate('customer');
-  if (!review) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'No reviews found');
-  }
+const failedPayment = async (payLoad: any) => {
+  const booking = await BookingModel.findById(payLoad.booking);
 
-  return review;
+  await SlotModel.findByIdAndUpdate(
+    booking?.slot,
+    { isBooked: 'available' },
+    {
+      new: true,
+    },
+  );
+
+  await BookingModel.findOneAndDelete(payLoad.booking);
+
+  return true;
 };
 
 export const paymentService = {
   successPayment,
-  getAllReviews,
+  failedPayment,
 };
