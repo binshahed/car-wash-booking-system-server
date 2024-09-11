@@ -6,7 +6,8 @@ import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 
-const liveUrl: string = 'http://localhost:4000';
+// const liveUrl: string = 'http://localhost:4000';
+const liveUrl: string = 'https://car-wash-booking-system-ten.vercel.app';
 
 export const paymentResponse = async (
   payloadUser: any,
