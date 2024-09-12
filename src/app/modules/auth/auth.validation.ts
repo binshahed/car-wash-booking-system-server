@@ -8,12 +8,7 @@ const createUserValidationSchema = z.object({
     password: z
       .string()
       .min(4, { message: 'Password must be at least 4 characters long' }),
-    phone: z
-      .string()
-      .min(10, { message: 'Phone number must be 10 digits long' }),
-    role: z.enum(['admin', 'user'], {
-      message: 'Role must be either "admin" or "user"',
-    }),
+    phone: z.string(),
     address: z.string({ message: 'Address is required' }),
   }),
 });

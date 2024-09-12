@@ -11,7 +11,7 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth('user'),
+    auth('user', 'admin'),
     validateRequest(ReviewValidation.createReviewValidation),
     reviewController.createReview,
   )
