@@ -18,6 +18,11 @@ const reviewSchema = new Schema<TReview>(
       max: 5,
       required: [true, 'Rating is required.'],
     },
+    service: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'Service is required.'],
+      ref: 'Service',
+    },
     message: {
       type: String,
       required: [true, 'Message is required.'],

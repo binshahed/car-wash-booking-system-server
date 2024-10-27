@@ -27,7 +27,19 @@ const getAllReview = catchAsync(async (req, res) => {
   });
 });
 
+const getServiceReview = catchAsync(async (req, res) => {
+  const result = await reviewService.getServiceReview(req.params.serviceId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reviews retrieved successfully',
+    data: result,
+  });
+});
+
 export const reviewController = {
   createReview,
   getAllReview,
+  getServiceReview,
 };
