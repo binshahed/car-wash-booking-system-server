@@ -17,4 +17,5 @@ router
   )
   .get(reviewController.getAllReview);
 
+router.route('/:serviceId').get(reviewController.getServiceReview);
 export const reviewRouter = router;

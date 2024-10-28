@@ -11,6 +11,20 @@ const serviceSchema = new Schema<TService>(
       type: String,
       default: '',
     },
+    review: {
+      type: {
+        total: {
+          type: Number,
+          default: 0,
+        },
+        rating: {
+          type: Number,
+          default: 0,
+        },
+      },
+      required: [true, 'Review is required'],
+      default: { total: 0, rating: 0 },
+    },
     isDeleted: { type: Boolean, default: false },
   },
   {
