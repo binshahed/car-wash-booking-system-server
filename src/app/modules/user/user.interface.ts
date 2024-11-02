@@ -11,6 +11,7 @@ export type TUser = {
   phone: string;
   role: TUserRole;
   address: string;
+  photoUrl: string;
 };
 
 export interface TUserModel extends Model<TUser> {

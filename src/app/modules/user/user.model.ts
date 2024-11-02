@@ -37,6 +37,10 @@ const userSchema = new Schema<TUser, TUserModel>(
       type: String,
       required: [true, 'Address is required'],
     },
+    photoUrl: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,

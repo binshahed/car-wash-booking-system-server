@@ -16,10 +16,12 @@ const serviceSchema = new Schema<TService>(
         total: {
           type: Number,
           default: 0,
+          min: 0,
         },
         rating: {
           type: Number,
           default: 0,
+          min: 0,
         },
       },
       required: [true, 'Review is required'],
